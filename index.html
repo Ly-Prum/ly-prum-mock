@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>名刺発注管理システム — Ly-Prum モック</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic UI', sans-serif; background: #f0f2f5; min-height: 100vh; }
+
+/* ========= TOP NAV ========= */
+.top-nav {
+  background: #1a1a2e;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 56px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.top-nav-logo { color: white; font-size: 15px; font-weight: 700; margin-right: auto; display: flex; align-items: center; gap: 8px; }
+.logo-badge { background: #2196F3; padding: 4px 10px; border-radius: 6px; font-size: 12px; }
+.role-btn {
+  padding: 7px 18px;
+  border: 1.5px solid rgba(255,255,255,0.3);
+  background: transparent; color: rgba(255,255,255,0.75);
+  border-radius: 20px; cursor: pointer; font-size: 13px;
+  transition: all 0.2s; white-space: nowrap;
+}
+.role-btn:hover { border-color: white; color: white; }
+.role-btn.active { background: white; color: #1a1a2e; border-color: white; font-weight: 600; }
+
+/* ========= MAIN ========= */
+.view { display: none; padding: 28px 24px; }
+.view.active { display: block; }
+.view-title { font-size: 13px; color: #888; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+.view-title span { background: #e3f2fd; color: #1565c0; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+
+/* ========= MOBILE FRAMES ========= */
+.phones-row { display: flex; gap: 28px; align-items: flex-start; justify-content: center; flex-wrap: wrap; }
+.phone-wrapper { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.phone-label { font-size: 12px; color: #888; font-weight: 500; }
+.phone-frame {
+  width: 300px;
+  background: #1a1a2e;
+  border-radius: 40px;
+  padding: 10px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.25), inset 0 0 0 1px rgba(255,255,255,0.05);
+}
+.phone-inner {
+  border-radius: 32px;
+  overflow: hidden;
+  background: white;
+}
+.phone-bar {
+  background: #1a1a2e;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.phone-notch { width: 72px; height: 14px; background: #1a1a2e; border-radius: 0 0 10px 10px; }
+.phone-screen { height: 560px; overflow-y: auto; background: #f8f9fa; }
+.phone-screen::-webkit-scrollbar { width: 3px; }
+.phone-screen::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 2px; }
+.phone-home-bar {
+  background: white;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.home-indicator { width: 80px; height: 4px; background: #ddd; border-radius: 2px; }
+
+/* Screen headers */
+.s-header { padding: 14px 16px 12px; color: white; }
+.s-header h2 { font-size: 17px; font-weight: 700; }
+.s-header p { font-size: 11px; opacity: 0.85; margin-top: 2px; }
+.bg-blue { background: linear-gradient(135deg, #1976D2, #42A5F5); }
+.bg-green { background: linear-gradient(135deg, #2E7D32, #66BB6A); }
+.bg-orange { background: linear-gradient(135deg, #E65100, #FFA726); }
+.bg-purple { background: linear-gradient(135deg, #6A1B9A, #AB47BC); }
+
+/* Form screen */
+.form-body { padding: 14px; }
+.form-group { margin-bottom: 14px; }
+.form-label {
+  font-size: 12px; font-weight: 600; color: #333;
+  margin-bottom: 5px; display: flex; align-items: center; gap: 6px;
+}
+.req { background: #e53935; color: white; font-size: 10px; padding: 1px 5px; border-radius: 3px; }
+.form-input, .form-select {
+  width: 100%; padding: 10px 12px; border: 1px solid #ddd;
+  border-radius: 8px; font-size: 13px; background: #f5f5f5; color: #333;
+  outline: none; transition: border-color 0.2s;
+}
+.form-input:focus, .form-select:focus { border-color: #2196F3; background: white; }
+.form-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-submit {
+  width: 100%; padding: 13px; background: #2196F3; color: white;
+  border: none; border-radius: 10px; font-size: 15px; font-weight: 600;
+  cursor: pointer; margin-top: 4px; transition: background 0.2s;
+}
+.btn-submit:hover { background: #1976D2; }
+.form-divider { height: 1px; background: #eee; margin: 14px 0; }
+.reorder-banner {
+  background: #E3F2FD; border-radius: 8px; padding: 10px 12px;
+  font-size: 12px; color: #1565C0; display: flex; align-items: center; gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* Progress screen */
+.prog-status {
+  margin: 12px; padding: 12px 14px; background: #E8F5E9;
+  border-radius: 10px; display: flex; align-items: center; gap: 10px;
+}
+.dot-pulse { width: 11px; height: 11px; background: #4CAF50; border-radius: 50%; flex-shrink: 0; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.5; transform:scale(0.9); } }
+.prog-title { font-size: 13px; font-weight: 700; color: #2E7D32; }
+.prog-sub { font-size: 11px; color: #555; }
+.step-list { padding: 4px 12px 12px; }
+.step-row { display: flex; align-items: flex-start; gap: 10px; padding: 11px 0; border-bottom: 1px solid #f0f0f0; }
+.step-row:last-child { border-bottom: none; }
+.step-icon {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; flex-shrink: 0; font-weight: 700;
+}
+.si-done { background: #4CAF50; color: white; }
+.si-active { background: #2196F3; color: white; }
+.si-pending { background: #e8e8e8; color: #bbb; border: 2px solid #ddd; }
+.step-info h4 { font-size: 12px; font-weight: 700; color: #333; }
+.step-info .s-time { font-size: 10px; color: #aaa; margin-top: 2px; }
+.step-info .s-note { font-size: 11px; color: #777; margin-top: 2px; }
+
+/* Preview screen */
+.prev-controls { display: flex; gap: 8px; padding: 10px 12px 0; }
+.btn-prev-ctrl {
+  flex: 1; padding: 8px; border: 1px solid #ddd;
+  background: white; border-radius: 7px; font-size: 12px; cursor: pointer; color: #555;
+}
+.card-box {
+  margin: 10px 12px; border: 1px solid #e0e0e0;
+  border-radius: 10px; padding: 18px; background: white; text-align: center;
+}
+.card-co { color: #2196F3; font-size: 11px; margin-bottom: 6px; font-weight: 600; }
+.card-name { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+.card-dept { font-size: 12px; color: #666; margin-bottom: 10px; }
+.card-line { height: 1px; background: #eee; margin: 10px 0; }
+.card-addr { font-size: 10px; color: #777; line-height: 1.9; text-align: left; }
+.check-row {
+  margin: 0 12px 10px; padding: 10px 12px; background: #E8F5E9;
+  border-radius: 8px; display: flex; align-items: center; gap: 8px;
+  font-size: 11px; color: #444; line-height: 1.4;
+}
+.check-box { width: 16px; height: 16px; background: #4CAF50; border-radius: 3px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.check-box::after { content: '✓'; color: white; font-size: 10px; font-weight: 700; }
+.action-row { display: flex; gap: 8px; padding: 0 12px 12px; }
+.btn-modify { flex: 1; padding: 13px; background: #FF9800; color: white; border: none; border-radius: 9px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.btn-approve { flex: 1; padding: 13px; background: #4CAF50; color: white; border: none; border-radius: 9px; font-size: 13px; font-weight: 700; cursor: pointer; }
+
+/* ========= DESKTOP VIEWS ========= */
+.desktop-card {
+  background: white; border-radius: 14px;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.08); overflow: hidden;
+}
+
+.d-header {
+  padding: 16px 24px; color: white;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.d-header-text h2 { font-size: 18px; font-weight: 700; }
+.d-header-text p { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+.d-header-actions { display: flex; gap: 8px; }
+.btn-h-action {
+  padding: 7px 14px; background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.4); color: white;
+  border-radius: 6px; font-size: 12px; cursor: pointer;
+  display: flex; align-items: center; gap: 5px;
+}
+
+/* Stats */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; padding: 20px 24px; }
+.stat-box { background: #f8f9fa; border-radius: 10px; padding: 16px; text-align: center; }
+.stat-label { font-size: 11px; color: #999; margin-bottom: 6px; }
+.stat-val { font-size: 30px; font-weight: 800; }
+.cv-blue { color: #2196F3; } .cv-orange { color: #FF9800; }
+.cv-purple { color: #7B1FA2; } .cv-green { color: #4CAF50; }
+
+/* Table area */
+.table-section { padding: 0 24px 24px; }
+.table-layout { display: flex; gap: 16px; }
+.sidebar-filter { width: 150px; flex-shrink: 0; }
+.filter-title { font-size: 11px; color: #aaa; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.f-item {
+  padding: 9px 10px; border-radius: 7px; font-size: 13px;
+  cursor: pointer; display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 2px; color: #555;
+}
+.f-item:hover { background: #f5f5f5; }
+.f-item.fi-active { background: #E3F2FD; color: #1565C0; font-weight: 600; }
+.f-count { background: #e0e0e0; padding: 1px 7px; border-radius: 10px; font-size: 11px; }
+.f-count.fc-blue { background: #2196F3; color: white; }
+.f-count.fc-orange { background: #FF9800; color: white; }
+.f-count.fc-purple { background: #7B1FA2; color: white; }
+.f-count.fc-green { background: #4CAF50; color: white; }
+
+.table-wrap { flex: 1; overflow-x: auto; }
+.search-row { display: flex; gap: 8px; margin-bottom: 14px; }
+.search-inp {
+  flex: 1; padding: 9px 14px; border: 1px solid #ddd;
+  border-radius: 8px; font-size: 13px; outline: none;
+}
+.search-inp:focus { border-color: #2196F3; }
+.btn-search { padding: 9px 18px; background: #2196F3; color: white; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; }
+
+.data-tbl { width: 100%; border-collapse: collapse; }
+.data-tbl th {
+  background: #f5f5f5; padding: 10px 14px; text-align: left;
+  font-size: 12px; color: #777; font-weight: 600;
+  border-bottom: 2px solid #e8e8e8; white-space: nowrap;
+}
+.data-tbl td { padding: 11px 14px; font-size: 13px; border-bottom: 1px solid #f2f2f2; }
+.data-tbl tr:hover td { background: #fafafa; }
+.badge { padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.b-making { background: #E3F2FD; color: #1565C0; }
+.b-waiting { background: #FFF8E1; color: #E65100; }
+.b-done { background: #E8F5E9; color: #2E7D32; }
+.b-preview { background: #F3E5F5; color: #6A1B9A; }
+.btn-tbl { padding: 4px 10px; border: none; background: transparent; font-size: 12px; cursor: pointer; }
+.btn-td { color: #2196F3; } .btn-ta { color: #4CAF50; font-weight: 600; }
+
+/* Production */
+.prod-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; padding: 20px 24px; }
+.prod-stat { background: #f8f9fa; border-radius: 10px; padding: 18px; text-align: center; }
+.prod-stat-label { font-size: 11px; color: #999; margin-bottom: 6px; }
+.prod-stat-val { font-size: 28px; font-weight: 800; }
+
+.prod-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 0 24px 24px; }
+.prod-section-title { font-size: 14px; font-weight: 700; color: #333; margin-bottom: 14px; }
+.work-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f2f2f2; }
+.work-item:last-child { border-bottom: none; }
+.work-name { font-size: 13px; font-weight: 600; color: #222; }
+.work-meta { font-size: 11px; color: #999; margin-top: 3px; }
+.work-right { display: flex; align-items: center; gap: 8px; }
+.badge-urg { background: #FFEBEE; color: #C62828; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+.badge-norm { background: #E8F5E9; color: #2E7D32; padding: 2px 7px; border-radius: 4px; font-size: 11px; }
+.btn-start { padding: 7px 14px; background: #7B1FA2; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 600; }
+
+.upload-area {
+  border: 2px dashed #ddd; border-radius: 10px; padding: 28px 20px;
+  text-align: center; color: #aaa; cursor: pointer; transition: all 0.2s;
+}
+.upload-area:hover { border-color: #7B1FA2; color: #7B1FA2; background: #faf5ff; }
+.upload-ico { font-size: 36px; margin-bottom: 8px; }
+.upload-txt { font-size: 13px; }
+.upload-sub { font-size: 11px; margin-top: 4px; }
+.upload-info { margin-top: 16px; border-top: 1px solid #f0f0f0; padding-top: 14px; }
+.info-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f8f8f8; font-size: 12px; }
+.info-lbl { color: #999; }
+.info-val { font-weight: 600; color: #333; }
+
+/* Section label */
+.sec-label {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; color: #666; margin-bottom: 18px;
+  padding: 5px 12px; background: white; border-radius: 20px;
+  border: 1px solid #e0e0e0;
+}
+
+/* ========= SALES VIEW ========= */
+.sales-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 0 24px 24px; }
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; padding: 20px 24px; }
+.kpi-card { background: #f8f9fa; border-radius: 10px; padding: 14px 16px; }
+.kpi-lbl { font-size: 11px; color: #999; margin-bottom: 6px; }
+.kpi-val { font-size: 22px; font-weight: 800; }
+.kpi-sub { font-size: 11px; color: #aaa; margin-top: 4px; }
+.kpi-change-up { color: #4CAF50; font-size: 11px; font-weight: 600; }
+.kpi-change-dn { color: #e53935; font-size: 11px; font-weight: 600; }
+
+.case-list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.case-lbl { font-size: 13px; font-weight: 700; color: #333; }
+.badge-count { background: #e3f2fd; color: #1565c0; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; }
+.case-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f2f2f2; }
+.case-item:last-child { border-bottom: none; }
+.case-emp { font-size: 13px; font-weight: 600; }
+.case-meta { font-size: 11px; color: #999; }
+.case-right { margin-left: auto; }
+
+/* ========= SETTINGS VIEW ========= */
+.settings-grid { display: grid; grid-template-columns: 200px 1fr; gap: 0; min-height: 400px; }
+.settings-sidebar { background: #f8f9fa; border-right: 1px solid #eee; padding: 16px 0; }
+.s-menu-item { padding: 10px 20px; font-size: 13px; cursor: pointer; color: #555; display: flex; align-items: center; gap: 8px; }
+.s-menu-item:hover { background: #f0f0f0; }
+.s-menu-item.sm-active { background: #E3F2FD; color: #1565C0; font-weight: 600; border-right: 3px solid #2196F3; }
+.s-menu-section { font-size: 10px; color: #bbb; padding: 12px 20px 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+.settings-content { padding: 24px; }
+.settings-title { font-size: 16px; font-weight: 700; color: #222; margin-bottom: 20px; }
+.settings-section { margin-bottom: 24px; }
+.settings-section-title { font-size: 13px; font-weight: 600; color: #555; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #eee; }
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f8f8f8; }
+.settings-row:last-child { border-bottom: none; }
+.s-row-label { font-size: 13px; color: #333; }
+.s-row-sub { font-size: 11px; color: #999; margin-top: 2px; }
+.toggle { width: 40px; height: 22px; background: #4CAF50; border-radius: 11px; position: relative; cursor: pointer; }
+.toggle.off { background: #ddd; }
+.toggle::after { content: ''; position: absolute; width: 18px; height: 18px; background: white; border-radius: 50%; top: 2px; right: 2px; transition: right 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.toggle.off::after { right: auto; left: 2px; }
+.s-select { padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px; }
+.role-badge { padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+.rb-admin { background: #E3F2FD; color: #1565C0; }
+.rb-general { background: #E8F5E9; color: #2E7D32; }
+.rb-production { background: #F3E5F5; color: #6A1B9A; }
+.rb-sales { background: #FFF8E1; color: #E65100; }
+.users-table { width: 100%; border-collapse: collapse; }
+.users-table th { background: #f5f5f5; padding: 8px 12px; font-size: 12px; color: #777; font-weight: 600; text-align: left; border-bottom: 1px solid #eee; }
+.users-table td { padding: 9px 12px; font-size: 12px; border-bottom: 1px solid #f8f8f8; }
+
+/* ========= UTILS ========= */
+.hidden { display: none; }
+.mt8 { margin-top: 8px; }
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+</style>
+</head>
+<body>
+
+<!-- ===== TOP NAV ===== -->
+<nav class="top-nav">
+  <div class="top-nav-logo">
+    <span class="logo-badge">Ly-Prum</span>
+    名刺発注管理システム
+  </div>
+  <button class="role-btn active" onclick="showView('employee')">👤 社員</button>
+  <button class="role-btn" onclick="showView('general')">🗂 総務</button>
+  <button class="role-btn" onclick="showView('sales')">📈 営業</button>
+  <button class="role-btn" onclick="showView('production')">🎨 制作チーム</button>
+  <button class="role-btn" onclick="showView('settings')">⚙️ 設定・権限</button>
+</nav>
+
+<!-- ============================= -->
+<!-- VIEW: 社員 (Employee)         -->
+<!-- ============================= -->
+<div id="view-employee" class="view active">
+  <div class="view-title">
+    <span>社員ビュー</span>
+    スマートフォン画面 — 発注申請・進捗確認・プレビュー確認
+  </div>
+  <div class="phones-row">
+
+    <!-- Phone 1: 発注申請 -->
+    <div class="phone-wrapper">
+      <div class="phone-label">① 名刺発注申請</div>
+      <div class="phone-frame">
+        <div class="phone-inner">
+          <div class="phone-bar"><div class="phone-notch"></div></div>
+          <div class="phone-screen">
+            <div class="s-header bg-blue">
+              <h2>名刺発注申請</h2>
+              <p>テックソリューション株式会社</p>
+            </div>
+            <div class="form-body">
+              <!-- 2回目以降バナー -->
+              <div class="reorder-banner">
+                <span>↩</span>
+                前回データを引き継いで再注文できます
+              </div>
+              <div class="form-group">
+                <div class="form-label">氏名 <span class="req">必須</span></div>
+                <input type="text" class="form-input" value="山田 太郎" readonly>
+              </div>
+              <div class="form-group">
+                <div class="form-label">部署 <span class="req">必須</span></div>
+                <select class="form-select">
+                  <option selected>営業部</option>
+                  <option>総務部</option>
+                  <option>開発部</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <div class="form-label">役職 <span class="req">必須</span></div>
+                <input type="text" class="form-input" value="課長" readonly>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <div class="form-label">電話番号</div>
+                  <input type="text" class="form-input" value="03-1234-5678" readonly>
+                </div>
+                <div class="form-group">
+                  <div class="form-label">FAX</div>
+                  <input type="text" class="form-input" value="03-1234-5679" readonly>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="form-label">メールアドレス</div>
+                <input type="text" class="form-input" value="yamada@example.com" readonly>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <div class="form-label">枚数 <span class="req">必須</span></div>
+                  <select class="form-select">
+                    <option selected>100枚</option>
+                    <option>200枚</option>
+                    <option>300枚</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <div class="form-label">納期希望</div>
+                  <input type="text" class="form-input" value="2024/12/01" readonly>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="form-label">備考</div>
+                <input type="text" class="form-input" placeholder="特記事項があれば入力">
+              </div>
+              <button class="btn-submit">発注を申請する</button>
+            </div>
+          </div>
+          <div class="phone-home-bar"><div class="home-indicator"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phone 2: 進捗確認 -->
+    <div class="phone-wrapper">
+      <div class="phone-label">② 進捗確認</div>
+      <div class="phone-frame">
+        <div class="phone-inner">
+          <div class="phone-bar"><div class="phone-notch"></div></div>
+          <div class="phone-screen">
+            <div class="s-header bg-orange">
+              <h2>進捗確認</h2>
+              <p>テックソリューション株式会社</p>
+            </div>
+            <div class="prog-status">
+              <div class="dot-pulse"></div>
+              <div>
+                <div class="prog-title">制作中</div>
+                <div class="prog-sub">制作チームが作業中です</div>
+              </div>
+            </div>
+            <div class="step-list">
+              <div class="step-row">
+                <div class="step-icon si-done">✓</div>
+                <div class="step-info">
+                  <h4>STEP1: 発注依頼</h4>
+                  <div class="s-time">完了 — 11/20 10:30</div>
+                </div>
+              </div>
+              <div class="step-row">
+                <div class="step-icon si-done">✓</div>
+                <div class="step-info">
+                  <h4>STEP2: 総務確認</h4>
+                  <div class="s-time">承認済み — 11/20 14:15</div>
+                </div>
+              </div>
+              <div class="step-row">
+                <div class="step-icon si-active">●</div>
+                <div class="step-info">
+                  <h4>STEP2: 制作中</h4>
+                  <div class="s-note">作業中</div>
+                </div>
+              </div>
+              <div class="step-row">
+                <div class="step-icon si-pending">○</div>
+                <div class="step-info">
+                  <h4>STEP3: プレビュー</h4>
+                  <div class="s-note">待機中</div>
+                </div>
+              </div>
+              <div class="step-row">
+                <div class="step-icon si-pending">○</div>
+                <div class="step-info">
+                  <h4>STEP4: 校了（総務）</h4>
+                  <div class="s-note">待機中</div>
+                </div>
+              </div>
+              <div class="step-row">
+                <div class="step-icon si-pending">○</div>
+                <div class="step-info">
+                  <h4>STEP5: 印刷・納品</h4>
+                  <div class="s-note">待機中</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-home-bar"><div class="home-indicator"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phone 3: プレビュー確認 -->
+    <div class="phone-wrapper">
+      <div class="phone-label">③ プレビュー確認</div>
+      <div class="phone-frame">
+        <div class="phone-inner">
+          <div class="phone-bar"><div class="phone-notch"></div></div>
+          <div class="phone-screen">
+            <div class="s-header bg-green">
+              <h2>プレビュー確認</h2>
+              <p>テックソリューション株式会社</p>
+            </div>
+            <div class="prev-controls">
+              <button class="btn-prev-ctrl">↔ 拡大</button>
+              <button class="btn-prev-ctrl">⊖ 縮小</button>
+            </div>
+            <div class="card-box">
+              <div class="card-co">テクノベース株式会社</div>
+              <div class="card-name">山田 太郎</div>
+              <div class="card-dept">営業部 課長</div>
+              <div class="card-line"></div>
+              <div class="card-addr">
+                〒100-0001 東京都千代田区千代田 1-1-1<br>
+                TEL: 03-1234-5678 / FAX: 03-1234-5679<br>
+                E-mail: yamada@technobase.co.jp<br>
+                https://technobase.co.jp
+              </div>
+            </div>
+            <div class="check-row">
+              <div class="check-box"></div>
+              内容を確認して、問題なければ「承認」ボタンをクリックしてください
+            </div>
+            <div class="action-row">
+              <button class="btn-modify">修正依頼</button>
+              <button class="btn-approve">承認する</button>
+            </div>
+          </div>
+          <div class="phone-home-bar"><div class="home-indicator"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /phones-row -->
+</div>
+
+<!-- ============================= -->
+<!-- VIEW: 総務 (General Affairs)  -->
+<!-- ============================= -->
+<div id="view-general" class="view hidden">
+  <div class="view-title">
+    <span>総務ビュー</span>
+    全社員の名刺発注状況を一元管理
+  </div>
+  <div class="desktop-card">
+    <div class="d-header bg-blue">
+      <div class="d-header-text">
+        <h2>総務管理画面</h2>
+        <p>全社員の名刺発注状況を一元管理</p>
+      </div>
+      <div class="d-header-actions">
+        <button class="btn-h-action">📥 CSV一括登録</button>
+        <button class="btn-h-action">📊 レポート出力</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-label">総件数</div>
+        <div class="stat-val cv-blue">24</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">承認待ち</div>
+        <div class="stat-val cv-orange">5</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">制作中</div>
+        <div class="stat-val cv-purple">8</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">完了</div>
+        <div class="stat-val cv-green">11</div>
+      </div>
+    </div>
+
+    <!-- Table section -->
+    <div class="table-section">
+      <div class="table-layout">
+        <!-- Sidebar filter -->
+        <div class="sidebar-filter">
+          <div class="filter-title">ステータス</div>
+          <div class="f-item fi-active">すべて <span class="f-count fc-blue">24</span></div>
+          <div class="f-item">承認待ち <span class="f-count fc-orange">5</span></div>
+          <div class="f-item">制作中 <span class="f-count fc-purple">8</span></div>
+          <div class="f-item">プレビュー <span class="f-count" style="background:#7B1FA2;color:white">3</span></div>
+          <div class="f-item">完了 <span class="f-count fc-green">11</span></div>
+          <br>
+          <div class="filter-title">部署</div>
+          <div class="f-item fi-active">すべて</div>
+          <div class="f-item">営業部</div>
+          <div class="f-item">総務部</div>
+          <div class="f-item">開発部</div>
+          <div class="f-item">経理部</div>
+          <div class="f-item">人事部</div>
+        </div>
+        <!-- Table -->
+        <div class="table-wrap">
+          <div class="search-row">
+            <input class="search-inp" type="text" placeholder="社員名・部署・社員番号で検索...">
+            <button class="btn-search">検索</button>
+          </div>
+          <table class="data-tbl">
+            <thead>
+              <tr>
+                <th>社員番号</th><th>氏名</th><th>部署</th><th>役職</th>
+                <th>発注日</th><th>納期</th><th>ステータス</th><th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>EMP001</td><td>山田 太郎</td><td>営業部</td><td>課長</td>
+                <td>2024/11/20</td><td>2024/11/25</td>
+                <td><span class="badge b-making">制作中</span></td>
+                <td><button class="btn-tbl btn-td">詳細</button></td>
+              </tr>
+              <tr>
+                <td>EMP002</td><td>佐藤 花子</td><td>総務部</td><td>主任</td>
+                <td>2024/11/18</td><td>2024/11/28</td>
+                <td><span class="badge b-waiting">承認待ち</span></td>
+                <td><button class="btn-tbl btn-ta">承認</button></td>
+              </tr>
+              <tr>
+                <td>EMP003</td><td>鈴木 一郎</td><td>開発部</td><td>部長</td>
+                <td>2024/11/15</td><td>2024/11/22</td>
+                <td><span class="badge b-done">完了</span></td>
+                <td><button class="btn-tbl btn-td">詳細</button></td>
+              </tr>
+              <tr>
+                <td>EMP004</td><td>田中 美咲</td><td>営業部</td><td>係長</td>
+                <td>2024/11/19</td><td>2024/11/27</td>
+                <td><span class="badge b-making">制作中</span></td>
+                <td><button class="btn-tbl btn-td">詳細</button></td>
+              </tr>
+              <tr>
+                <td>EMP005</td><td>高橋 健太</td><td>経理部</td><td>担当</td>
+                <td>2024/11/17</td><td>2024/11/29</td>
+                <td><span class="badge b-waiting">承認待ち</span></td>
+                <td><button class="btn-tbl btn-ta">承認</button></td>
+              </tr>
+              <tr>
+                <td>EMP006</td><td>伊藤 愛美</td><td>人事部</td><td>主任</td>
+                <td>2024/11/14</td><td>2024/11/21</td>
+                <td><span class="badge b-done">完了</span></td>
+                <td><button class="btn-tbl btn-td">詳細</button></td>
+              </tr>
+              <tr>
+                <td>EMP007</td><td>渡辺 誠</td><td>営業部</td><td>担当</td>
+                <td>2024/11/16</td><td>2024/11/28</td>
+                <td><span class="badge b-making">制作中</span></td>
+                <td><button class="btn-tbl btn-td">詳細</button></td>
+              </tr>
+              <tr>
+                <td>EMP008</td><td>中村 健一</td><td>開発部</td><td>主任</td>
+                <td>2024/11/19</td><td>2024/11/30</td>
+                <td><span class="badge b-preview">プレビュー待ち</span></td>
+                <td><button class="btn-tbl btn-td">詳細</button></td>
+              </tr>
+              <tr>
+                <td>EMP009</td><td>小林 さくら</td><td>営業部</td><td>係長</td>
+                <td>2024/11/20</td><td>2024/12/02</td>
+                <td><span class="badge b-waiting">承認待ち</span></td>
+                <td><button class="btn-tbl btn-ta">承認</button></td>
+              </tr>
+              <tr>
+                <td>EMP010</td><td>加藤 大輔</td><td>総務部</td><td>担当</td>
+                <td>2024/11/13</td><td>2024/11/20</td>
+                <td><span class="badge b-done">完了</span></td>
+                <td><button class="btn-tbl btn-td">詳細</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================= -->
+<!-- VIEW: 営業 (Sales)            -->
+<!-- ============================= -->
+<div id="view-sales" class="view hidden">
+  <div class="view-title">
+    <span>営業ビュー</span>
+    担当案件の管理・進捗確認・先回り提案
+  </div>
+  <div class="desktop-card">
+    <div class="d-header" style="background: linear-gradient(135deg, #1565C0, #42A5F5);">
+      <div class="d-header-text">
+        <h2>営業ダッシュボード</h2>
+        <p>担当案件の進捗と営業活動管理</p>
+      </div>
+      <div class="d-header-actions">
+        <button class="btn-h-action">📋 案件一覧</button>
+        <button class="btn-h-action">🔔 通知設定</button>
+      </div>
+    </div>
+
+    <!-- KPI -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-lbl">今月の担当案件</div>
+        <div class="kpi-val cv-blue">18</div>
+        <div class="kpi-sub">件</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-lbl">校了待ち（要対応）</div>
+        <div class="kpi-val cv-orange">3</div>
+        <div class="kpi-sub">件</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-lbl">今月完了</div>
+        <div class="kpi-val cv-green">12</div>
+        <div class="kpi-sub">件 <span class="kpi-change-up">▲ 2件↑</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-lbl">平均リードタイム</div>
+        <div class="kpi-val cv-purple">4.2</div>
+        <div class="kpi-sub">日 <span class="kpi-change-up">▼ 0.8日改善</span></div>
+      </div>
+    </div>
+
+    <div class="sales-grid">
+      <!-- 要対応案件 -->
+      <div>
+        <div class="case-list-header">
+          <span class="case-lbl">要対応案件</span>
+          <span class="badge-count">3件</span>
+        </div>
+        <div class="case-item">
+          <div>
+            <div class="case-emp">山田 太郎（営業部 課長）</div>
+            <div class="case-meta">EMP001 | 納期: 2024/11/25 | 校了待ち</div>
+          </div>
+          <div class="case-right"><span class="badge b-waiting">要校了</span></div>
+        </div>
+        <div class="case-item">
+          <div>
+            <div class="case-emp">田中 美咲（営業部 係長）</div>
+            <div class="case-meta">EMP004 | 納期: 2024/11/27 | プレビュー待ち</div>
+          </div>
+          <div class="case-right"><span class="badge b-preview">確認待ち</span></div>
+        </div>
+        <div class="case-item">
+          <div>
+            <div class="case-emp">小林 さくら（営業部 係長）</div>
+            <div class="case-meta">EMP009 | 納期: 2024/12/02 | 修正依頼あり</div>
+          </div>
+          <div class="case-right"><span class="badge b-making" style="background:#FFEBEE;color:#C62828">修正中</span></div>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <div class="case-list-header">
+            <span class="case-lbl">先回り提案アラート</span>
+            <span class="badge-count" style="background:#FFF8E1;color:#E65100">2件</span>
+          </div>
+          <div class="case-item">
+            <div>
+              <div class="case-emp">🔔 ベステラ社 — 前回発注から90日経過</div>
+              <div class="case-meta">人事異動シーズン。再発注提案のタイミングです</div>
+            </div>
+          </div>
+          <div class="case-item">
+            <div>
+              <div class="case-emp">🎉 ABCコーポレーション — 創業記念月</div>
+              <div class="case-meta">11月が周年記念。特別デザイン提案の機会です</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 進行中案件 -->
+      <div>
+        <div class="case-list-header">
+          <span class="case-lbl">進行中案件</span>
+          <span class="badge-count">6件</span>
+        </div>
+        <table class="data-tbl">
+          <thead>
+            <tr><th>氏名</th><th>発注日</th><th>納期</th><th>ステータス</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>渡辺 誠</td><td>11/16</td><td>11/28</td>
+              <td><span class="badge b-making">制作中</span></td>
+            </tr>
+            <tr>
+              <td>中村 健一</td><td>11/19</td><td>11/30</td>
+              <td><span class="badge b-preview">プレビュー待ち</span></td>
+            </tr>
+            <tr>
+              <td>木村 直樹</td><td>11/18</td><td>11/29</td>
+              <td><span class="badge b-making">制作中</span></td>
+            </tr>
+            <tr>
+              <td>松本 恵子</td><td>11/20</td><td>12/01</td>
+              <td><span class="badge b-making">制作中</span></td>
+            </tr>
+            <tr>
+              <td>井上 拓也</td><td>11/15</td><td>11/24</td>
+              <td><span class="badge b-done">完了</span></td>
+            </tr>
+            <tr>
+              <td>清水 美紀</td><td>11/12</td><td>11/20</td>
+              <td><span class="badge b-done">完了</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= -->
+<!-- VIEW: 制作チーム (Production)  -->
+<!-- ============================= -->
+<div id="view-production" class="view hidden">
+  <div class="view-title">
+    <span>制作チームビュー</span>
+    作業案件管理とデータアップロード
+  </div>
+  <div class="desktop-card">
+    <div class="d-header bg-purple">
+      <div class="d-header-text">
+        <h2>制作チーム画面</h2>
+        <p>データ制作とアップロード管理</p>
+      </div>
+      <div class="d-header-actions">
+        <button class="btn-h-action" style="background:rgba(255,255,255,0.15)">TECH SOLUTION</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="prod-stats">
+      <div class="prod-stat">
+        <div class="prod-stat-label">今月の完了件数</div>
+        <div class="prod-stat-val cv-green">11</div>
+      </div>
+      <div class="prod-stat">
+        <div class="prod-stat-label">平均制作日数</div>
+        <div class="prod-stat-val cv-blue">2.3日</div>
+      </div>
+      <div class="prod-stat">
+        <div class="prod-stat-label">品質スコア</div>
+        <div class="prod-stat-val cv-purple">98%</div>
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="prod-grid">
+      <!-- Work list -->
+      <div>
+        <div class="prod-section-title">作業中の案件（8件）</div>
+        <div class="work-item">
+          <div>
+            <div class="work-name">山田 太郎（営業部 課長）</div>
+            <div class="work-meta">EMP001 | 納期: 2024/11/25</div>
+          </div>
+          <div class="work-right">
+            <span class="badge-urg">急ぎ</span>
+            <button class="btn-start">制作開始</button>
+          </div>
+        </div>
+        <div class="work-item">
+          <div>
+            <div class="work-name">田中 美咲（営業部 係長）</div>
+            <div class="work-meta">EMP004 | 納期: 2024/11/27</div>
+          </div>
+          <div class="work-right">
+            <span class="badge-norm">通常</span>
+            <button class="btn-start">制作開始</button>
+          </div>
+        </div>
+        <div class="work-item">
+          <div>
+            <div class="work-name">渡辺 誠（営業部 担当）</div>
+            <div class="work-meta">EMP007 | 納期: 2024/11/28</div>
+          </div>
+          <div class="work-right">
+            <span class="badge-norm">通常</span>
+            <button class="btn-start">制作開始</button>
+          </div>
+        </div>
+        <div class="work-item">
+          <div>
+            <div class="work-name">中村 健一（開発部 主任）</div>
+            <div class="work-meta">EMP008 | 納期: 2024/11/30</div>
+          </div>
+          <div class="work-right">
+            <span class="badge-norm">通常</span>
+            <button class="btn-start">制作開始</button>
+          </div>
+        </div>
+        <div class="work-item">
+          <div>
+            <div class="work-name">高橋 健太（経理部 担当）</div>
+            <div class="work-meta">EMP005 | 納期: 2024/11/29</div>
+          </div>
+          <div class="work-right">
+            <span class="badge-norm">通常</span>
+            <button class="btn-start">制作開始</button>
+          </div>
+        </div>
+        <div class="work-item">
+          <div>
+            <div class="work-name">木村 直樹（開発部 担当）</div>
+            <div class="work-meta">EMP011 | 納期: 2024/11/29</div>
+          </div>
+          <div class="work-right">
+            <span class="badge-norm">通常</span>
+            <button class="btn-start">制作開始</button>
+          </div>
+        </div>
+        <div class="work-item">
+          <div>
+            <div class="work-name">松本 恵子（人事部 主任）</div>
+            <div class="work-meta">EMP012 | 納期: 2024/12/01</div>
+          </div>
+          <div class="work-right">
+            <span class="badge-norm">通常</span>
+            <button class="btn-start">制作開始</button>
+          </div>
+        </div>
+        <div class="work-item">
+          <div>
+            <div class="work-name">小林 さくら（営業部 係長）</div>
+            <div class="work-meta">EMP009 | 納期: 2024/12/02</div>
+          </div>
+          <div class="work-right">
+            <span class="badge-norm">通常</span>
+            <button class="btn-start">制作開始</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upload area -->
+      <div>
+        <div class="prod-section-title">データアップロード</div>
+        <div class="upload-area">
+          <div class="upload-ico">🗂</div>
+          <div class="upload-txt">ファイルをドラッグ&ドロップ</div>
+          <div class="upload-sub">または、クリックしてファイルを選択</div>
+        </div>
+        <div class="upload-info">
+          <div class="info-row">
+            <span class="info-lbl">対象案件</span>
+            <span class="info-val">EMP001 - 山田 太郎</span>
+          </div>
+          <div class="info-row">
+            <span class="info-lbl">部署</span>
+            <span class="info-val">営業部</span>
+          </div>
+          <div class="info-row">
+            <span class="info-lbl">役職</span>
+            <span class="info-val">課長</span>
+          </div>
+          <div class="info-row">
+            <span class="info-lbl">枚数</span>
+            <span class="info-val">100枚</span>
+          </div>
+          <div class="info-row">
+            <span class="info-lbl">納期</span>
+            <span class="info-val" style="color:#e53935;font-weight:700">2024/11/25（急ぎ）</span>
+          </div>
+          <div class="info-row">
+            <span class="info-lbl">備考</span>
+            <span class="info-val">—</span>
+          </div>
+        </div>
+        <button class="btn-submit" style="margin-top:14px">データをアップロードする</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================= -->
+<!-- VIEW: 設定・権限 (Settings)   -->
+<!-- ============================= -->
+<div id="view-settings" class="view hidden">
+  <div class="view-title">
+    <span>管理者ビュー</span>
+    システム設定・ユーザー権限管理
+  </div>
+  <div class="desktop-card">
+    <div class="d-header" style="background: linear-gradient(135deg, #263238, #546E7A);">
+      <div class="d-header-text">
+        <h2>設定・権限管理</h2>
+        <p>システム全体の設定とユーザー権限を管理</p>
+      </div>
+    </div>
+
+    <div class="settings-grid">
+      <!-- Sidebar -->
+      <div class="settings-sidebar">
+        <div class="s-menu-section">システム管理</div>
+        <div class="s-menu-item sm-active">👥 ユーザー・権限</div>
+        <div class="s-menu-item">🔔 通知設定</div>
+        <div class="s-menu-item">🔄 ワークフロー設定</div>
+        <div class="s-menu-section">データ管理</div>
+        <div class="s-menu-item">📥 CSVインポート</div>
+        <div class="s-menu-item">📊 レポート設定</div>
+        <div class="s-menu-item">🗑 データ削除・アーカイブ</div>
+        <div class="s-menu-section">表示</div>
+        <div class="s-menu-item">🎨 テーマ・デザイン</div>
+        <div class="s-menu-item">📱 モバイル設定</div>
+      </div>
+
+      <!-- Content -->
+      <div class="settings-content">
+        <div class="settings-title">ユーザー・権限管理</div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">権限設定</div>
+          <div class="settings-row">
+            <div>
+              <div class="s-row-label">総務担当者 — 承認権限</div>
+              <div class="s-row-sub">名刺発注の初回承認・校了を行う権限</div>
+            </div>
+            <div class="toggle"></div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="s-row-label">営業担当者 — 校了参加</div>
+              <div class="s-row-sub">営業活動必須の案件のみ校了フローに参加</div>
+            </div>
+            <div class="toggle"></div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="s-row-label">制作チーム — データアップロード</div>
+              <div class="s-row-sub">制作データのアップロード・プレビュー生成権限</div>
+            </div>
+            <div class="toggle"></div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="s-row-label">2回目以降の総務承認スキップ</div>
+              <div class="s-row-sub">リピート発注時、総務の承認をスキップして制作へ直送</div>
+            </div>
+            <div class="toggle"></div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="s-row-label">通知：承認待ちアラート</div>
+              <div class="s-row-sub">承認待ちが発生した際にメール・プッシュ通知を送る</div>
+            </div>
+            <select class="s-select">
+              <option>即時通知</option>
+              <option>1時間ごと</option>
+              <option>毎日まとめて</option>
+            </select>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="s-row-label">遅延アラートの基準（日数）</div>
+              <div class="s-row-sub">納期まで指定日数を切った場合に警告を表示</div>
+            </div>
+            <select class="s-select">
+              <option>3日前</option>
+              <option selected>2日前</option>
+              <option>1日前</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">登録ユーザー一覧</div>
+          <table class="users-table">
+            <thead>
+              <tr>
+                <th>社員番号</th><th>氏名</th><th>部署</th>
+                <th>権限ロール</th><th>最終ログイン</th><th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ADM001</td><td>安達 友香</td><td>IT管理部</td>
+                <td><span class="role-badge rb-admin">管理者</span></td>
+                <td>2024/11/20 09:15</td>
+                <td><button class="btn-tbl btn-td">編集</button></td>
+              </tr>
+              <tr>
+                <td>GEN001</td><td>佐藤 花子</td><td>総務部</td>
+                <td><span class="role-badge rb-general">総務</span></td>
+                <td>2024/11/20 10:02</td>
+                <td><button class="btn-tbl btn-td">編集</button></td>
+              </tr>
+              <tr>
+                <td>SAL001</td><td>山田 太郎</td><td>営業部</td>
+                <td><span class="role-badge rb-sales">営業</span></td>
+                <td>2024/11/20 08:45</td>
+                <td><button class="btn-tbl btn-td">編集</button></td>
+              </tr>
+              <tr>
+                <td>SAL002</td><td>田中 美咲</td><td>営業部</td>
+                <td><span class="role-badge rb-sales">営業</span></td>
+                <td>2024/11/19 17:30</td>
+                <td><button class="btn-tbl btn-td">編集</button></td>
+              </tr>
+              <tr>
+                <td>PRD001</td><td>制作 一郎</td><td>制作チーム</td>
+                <td><span class="role-badge rb-production">制作</span></td>
+                <td>2024/11/20 09:55</td>
+                <td><button class="btn-tbl btn-td">編集</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => {
+    v.classList.remove('active');
+    v.classList.add('hidden');
+  });
+  const target = document.getElementById('view-' + name);
+  if (target) {
+    target.classList.remove('hidden');
+    target.classList.add('active');
+  }
+  document.querySelectorAll('.role-btn').forEach((btn, i) => {
+    btn.classList.remove('active');
+  });
+  const map = ['employee', 'general', 'sales', 'production', 'settings'];
+  const idx = map.indexOf(name);
+  if (idx >= 0) document.querySelectorAll('.role-btn')[idx].classList.add('active');
+}
+</script>
+</body>
+</html>
