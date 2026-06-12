@@ -41,8 +41,11 @@ cd ly-prum-mock
 # index.html をブラウザで直接開くだけでOK
 open index.html
 
+ファイル構成
+
 ly-prum-mock/
 └── index.html   # デモ全体（PC版）
+
 
 
 © 2024 Ly-Prum — 想いをつなぐ、デジタルの絆
